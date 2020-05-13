@@ -1,0 +1,24 @@
+import os
+import collections
+
+INPUT = "input"
+OUTPUT = "output"
+IDS, = glob_wildcards(INPUT + "/{id}")
+IDS = [id for id in IDS if not id.startswith('.')]
+
+rule all:
+    input: expand(OUTPUT + "/{id}", id=IDS)
+
+rule:
+    input: INPUT + "/{id}"
+    output: OUTPUT + "/{id}"
+    run:
+        with open(f'{input}', 'r') as file_in, open(f'{output}', 'w') as file_out:
+            line = file_in.readline().strip()
+            counts = {}
+            for char in line:
+                if char not in counts:
+                    counts[char] = line.count(char)
+
+            for key, value in collections.OrderedDict(sorted(counts.items())).items():
+                file_out.write(f'{key}: {value}\n')
